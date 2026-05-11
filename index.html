@@ -3,13 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Quản lý Văn bản Công đoàn</title>
+    <meta name="version" content="HEPC v1.3">
+    <title>Tra cứu Văn bản Công đoàn - HCMPC</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-        iframe { width: 100%; height: 100%; border: none; }
+        :root {
+            --evn-blue: #0054a5;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Khóa cuộn trang ngoài cùng để app bên trong tự cuộn */
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f7f6;
+        }
+        
+        /* CSS cho thanh Header */
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--evn-blue);
+            color: white;
+            padding: 10px 25px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.4;
+        }
+        .header-banner {
+            height: 65px; /* Chiều cao cố định để banner không bị vỡ khung */
+            width: auto;
+            object-fit: contain;
+            border-radius: 5px;
+            background-color: white; /* Nền trắng 1 chút để nổi banner nếu banner trong suốt */
+            padding: 2px;
+        }
+
+        /* CSS cho phần nhúng GAS */
+        .app-iframe {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+        }
+
+        /* Responsive: Tự động xếp dọc khi xem trên điện thoại */
+        @media (max-width: 768px) {
+            .top-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
+            .header-title {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+            .header-banner {
+                height: 50px;
+            }
+        }
     </style>
 </head>
 <body>
-    <iframe src="https://script.google.com/macros/s/AKfycbwXMh7lD4DCqINXLSu31JKP5o4NDp2ij7r-SpiypE7GrQ9po88tTvEblxiDkGOXgd0w/exec"></iframe>
+
+    <header class="top-header">
+        <h1 class="header-title">Hệ thống tra cứu văn bản Công đoàn Công ty Lưới điện Cao thế TPHCM</h1>
+        <img src="banner.png" alt="Banner Hoạt động Công đoàn" class="header-banner">
+    </header>
+
+    <iframe class="app-iframe" src="https://script.google.com/macros/s/AKfycbwXMh7lD4DCqINXLSu31JKP5o4NDp2ij7r-SpiypE7GrQ9po88tTvEblxiDkGOXgd0w/exec"></iframe>
+
 </body>
 </html>

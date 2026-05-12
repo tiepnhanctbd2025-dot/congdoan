@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="version" content="HEPC v1.4">
+    <title>Bảng Điều khiển Quản trị - HEPC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --evn-blue: #0054a5; }
+        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
+        .top-header { display: flex; align-items: center; justify-content: space-between; background-color: var(--evn-blue); color: white; padding: 15px 25px; box-shadow: 0 3px 6px rgba(0,0,0,0.15); z-index: 10; }
+        .app-container { flex-grow: 1; padding: 20px; }
+        .auth-card { max-width: 400px; margin: 60px auto; }
+        .pass-group { position: relative; }
+        .eye-icon { position: absolute; right: 15px; top: 12px; cursor: pointer; color: #6c757d; font-size: 1.1rem; z-index: 10; }
+        .hidden { display: none !important; }
+        #loadingOverlay { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 9999; background: rgba(255,255,255,0.8); display:none; align-items:center; justify-content:center; flex-direction:column; }
+    </style>
+</head>
+<body>
+
+<header class="top-header">
+    <h4 class="mb-0 fw-bold"><i class="fa fa-cogs me-2"></i>Cổng Quản trị HEPC v1.4</h4>
+    <div><a href="index.html" class="text-white text-decoration-none"><i class="fa fa-home"></i> Về trang chủ</a></div>
+</header>
+
+<div id="loadingOverlay"><div class="spinner-border text-primary"></div><b class="mt-2 text-primary">Đang xử lý dữ liệu...</b></div>
+
+<div class="app-container">
+    <div id="loginBox" class="card shadow border-0 p-4 auth-card">
+        <h5 class="fw-bold text-danger text-center mb-4"><i class="fa fa-shield-alt"></i> QUẢN TRỊ VIÊN</h5>
+        <input type="email" id="adminEmail" class="form-control mb-3" placeholder="Email Admin">
+        <div class="mb-3 pass-group">
+            <input type="password" id="adminPass" class="form-control" placeholder="Mật khẩu">
+            <i class="fa fa-eye eye-icon" onclick="togglePass(this, 'adminPass')"></i>
+        </div>
+        <button onclick="adminLogin()" class="btn btn-danger w-100 fw-bold">ĐĂNG NHẬP</button>
+    </div>
+
+    <div id="adminPanel" class="hidden container">
+        <div class="d-flex justify-content-between mb-4">
+            <h4>Chào Admin: <span id="adminNameDisplay" class="text-primary"></span></h4>
+            <button onclick="logoutAdmin()" class="btn btn-outline-danger">Đăng xuất</button>
+        </div>
+
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboardTab" onclick="loadDashboard()">Thống kê Hệ thống</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#usersTab" onclick="loadUsers()">Quản lý Người dùng</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#teamsTab" onclick="loadTeams()">Quản lý Đơn vị</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="dashboardTab">
+                <div class="row mb-4">
+                    <div class="col-md-3"><div class="card bg-primary text-white p-3 shadow-sm"><h6 class="mb-1">Tổng Tài Khoản</h6><h3 id="statTotalUsers">0</h3></div></div>
+                    <div class="col-md-3"><div class="card bg-success text-white p-3 shadow-sm"><h6 class="mb-1">Đang Sử Dụng (30 ngày)</h6><h3 id="statActiveUsers">0</h3></div></div>
+                    <div class="col-md-3"><div class="card bg-info text-white p-3 shadow-sm"><h6 class="mb-1">Tổng Lượt Đăng Nhập</h6><h3 id="statTotalLogins">0</h3></div></div>
+                    <div class="col-md-3"><div class="card bg-warning text-white p-3 shadow-sm"><h6 class="mb-1">Tổng Lượt Tìm Kiếm</h6><h3 id="statTotalSearches">0</h3></div></div>
+                </div>
+                <div class="card shadow-sm border-0 p-3"><h5 class="fw-bold text-secondary border-bottom pb-2">Top 5 Người tải văn bản</h5><ul class="list-group list-group-flush" id="topUploadersList"></ul></div>
+            </div>
+
+            <div class="tab-pane fade" id="usersTab">
+                <div class="table-responsive bg-white rounded shadow-sm">
+                    <table class="table table-hover align-middle mb-0 text-center">
+                        <thead class="table-dark"><tr><th>Họ tên</th><th>Email</th><th>Đơn vị</th><th>Truy cập cuối</th><th>Phân quyền</th><th>Trạng thái</th><th>Lưu</th></tr></thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="teamsTab">
+                <div class="row">
+                    <div class="col-md-6"><div class="card shadow-sm border-0 p-4"><h5 class="fw-bold text-success mb-3">Thêm Đơn vị mới</h5><div class="input-group"><input type="text" id="newTeamName" class="form-control" placeholder="Tên tổ/đội..."><button onclick="addNewTeam()" class="btn btn-success">Thêm</button></div></div></div>
+                    <div class="col-md-6"><div class="card shadow-sm border-0"><table class="table table-hover mb-0"><thead class="table-light"><tr><th>Danh sách Đơn vị</th><th class="text-end">Xóa</th></tr></thead><tbody id="teamsTableBody"></tbody></table></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // === DÁN LINK GOOGLE APPS SCRIPT WEB APP VÀO ĐÂY ===
+    const API_URL = "DÁN_LINK_VÀO_ĐÂY";
+
+    let currentAdmin = null;
+
+    async function apiCall(action, payloadData = {}) {
+        try { const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, ...payloadData }) }); return await r.json(); } 
+        catch (e) { alert("Lỗi kết nối API!"); document.getElementById('loadingOverlay').style.display = 'none'; throw e; }
+    }
+
+    function showLoad() { document.getElementById('loadingOverlay').style.display = 'flex'; }
+    function hideLoad() { document.getElementById('loadingOverlay').style.display = 'none'; }
+    function togglePass(icon, id) { const el = document.getElementById(id); el.type = el.type === "password" ? "text" : "password"; icon.classList.toggle("fa-eye-slash"); icon.classList.toggle("fa-eye"); }
+
+    async function adminLogin() {
+        const email = document.getElementById('adminEmail').value, password = document.getElementById('adminPass').value;
+        if(!email || !password) return alert("Vui lòng điền đủ!");
+        showLoad();
+        const r = await apiCall('authUser', { data: {email, password} });
+        if(r.success) {
+            if(r.role !== 'admin') { hideLoad(); return alert("Không có quyền Admin!"); }
+            currentAdmin = r; document.getElementById('loginBox').classList.add('hidden'); document.getElementById('adminPanel').classList.remove('hidden'); document.getElementById('adminNameDisplay').innerText = r.fullName;
+            loadDashboard();
+        } else { hideLoad(); alert(r.message); }
+    }
+
+    function logoutAdmin() { location.reload(); }
+
+    async function loadDashboard() {
+        showLoad(); const r = await apiCall('getDashboardStats', { adminEmail: currentAdmin.email }); hideLoad();
+        if(r.success) {
+            ['TotalUsers','ActiveUsers','TotalLogins','TotalSearches'].forEach(k => document.getElementById('stat'+k).innerText = r.stats['t'+k.substring(1)] || r.stats['a'+k.substring(1)]);
+            const upList = document.getElementById('topUploadersList');
+            upList.innerHTML = r.stats.topUploaders.length ? r.stats.topUploaders.map((u, i) => `<li class="list-group-item d-flex justify-content-between align-items-center"><span><b>#${i+1}</b> - ${u.email}</span><span class="badge bg-primary rounded-pill">${u.count} văn bản</span></li>`).join('') : '<li class="list-group-item text-muted">Chưa có dữ liệu.</li>';
+        }
+    }
+
+    async function loadUsers() {
+        showLoad(); const r = await apiCall('getAllUsers', { adminEmail: currentAdmin.email }); hideLoad();
+        if(r.success) {
+            document.getElementById('usersTableBody').innerHTML = r.users.map(u => `<tr><td class="fw-bold">${u.fullName}</td><td>${u.email}</td><td>${u.team}</td><td class="text-muted small">${u.lastLogin}</td><td><select class="form-select form-select-sm" id="role_${u.email}"><option value="basic" ${u.role==='basic'?'selected':''}>Basic</option><option value="mod" ${u.role==='mod'?'selected':''}>Mod</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select></td><td><select class="form-select form-select-sm ${u.status==='locked'?'text-danger':'text-success'}" id="status_${u.email}"><option value="active" ${u.status==='active'?'selected':''}>Active</option><option value="locked" ${u.status==='locked'?'selected':''}>Locked</option></select></td><td><button onclick="saveUser('${u.email}')" class="btn btn-sm btn-primary"><i class="fa fa-save"></i></button></td></tr>`).join('');
+        }
+    }
+
+    async function saveUser(email) {
+        showLoad(); const r = await apiCall('updateUserRole', { adminEmail: currentAdmin.email, targetEmail: email, newRole: document.getElementById(`role_${email}`).value, newStatus: document.getElementById(`status_${email}`).value }); hideLoad(); alert(r.message);
+    }
+
+    async function loadTeams() {
+        showLoad(); const r = await apiCall('getTeamsList'); hideLoad();
+        if(r.success) document.getElementById('teamsTableBody').innerHTML = r.teams.map(t => `<tr><td class="fw-bold">${t}</td><td class="text-end"><button onclick="removeTeam('${t}')" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash"></i></button></td></tr>`).join('');
+    }
+
+    async function addNewTeam() {
+        const teamName = document.getElementById('newTeamName').value; showLoad();
+        const r = await apiCall('addTeam', { adminEmail: currentAdmin.email, teamName }); hideLoad(); alert(r.message);
+        if(r.success) { document.getElementById('newTeamName').value = ''; loadTeams(); }
+    }
+
+    async function removeTeam(teamName) {
+        if(!confirm(`Xóa đơn vị "${teamName}"?`)) return; showLoad();
+        const r = await apiCall('deleteTeam', { adminEmail: currentAdmin.email, teamName }); hideLoad(); alert(r.message);
+        if(r.success) loadTeams();
+    }
+</script>
+</body>
+</html>

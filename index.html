@@ -3,65 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="HEPC v1.3">
-    <title>Tra cứu Văn bản Công đoàn - HCMPC</title>
+    <title>Tra cứu Văn bản Công đoàn - HCMPC (HEPC v1.3)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --evn-blue: #0054a5; }
-        body, html {
-            margin: 0; padding: 0; height: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; display: flex; flex-direction: column;
-            background-color: #f4f7f6;
-        }
-        
-        .top-header {
-            display: flex; align-items: center; justify-content: space-between;
-            background-color: var(--evn-blue); color: white;
-            padding: 10px 25px; box-shadow: 0 3px 6px rgba(0,0,0,0.15); z-index: 10;
-        }
+        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
+        /* Header & Banner */
+        .top-header { display: flex; align-items: center; justify-content: space-between; background-color: var(--evn-blue); color: white; padding: 10px 25px; box-shadow: 0 3px 6px rgba(0,0,0,0.15); z-index: 10; }
         .header-title { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; margin: 0; line-height: 1.4; }
         .header-banner { height: 65px; width: auto; object-fit: contain; border-radius: 5px; background-color: white; padding: 2px; }
-
-        /* Nút cảnh báo cho điện thoại */
-        .mobile-fallback {
-            display: none; /* Mặc định ẩn */
-            background-color: #fff3cd; color: #856404;
-            text-align: center; padding: 12px; font-size: 0.9rem;
-            border-bottom: 1px solid #ffeeba;
-        }
-        .btn-direct {
-            display: inline-block; margin-top: 8px; padding: 8px 15px;
-            background-color: var(--evn-blue); color: white;
-            text-decoration: none; border-radius: 5px; font-weight: bold;
-        }
-
-        .app-iframe { flex-grow: 1; width: 100%; border: none; }
-
-        @media (max-width: 768px) {
-            .top-header { flex-direction: column; text-align: center; padding: 15px; }
-            .header-title { font-size: 1rem; margin-bottom: 10px; }
-            .header-banner { height: 50px; }
-            /* Hiện nút cảnh báo khi ở màn hình nhỏ */
-            .mobile-fallback { display: block; }
-        }
+        @media (max-width: 768px) { .top-header { flex-direction: column; text-align: center; padding: 15px; } .header-title { font-size: 1rem; margin-bottom: 10px; } .header-banner { height: 50px; } }
+        /* App Style */
+        .app-container { flex-grow: 1; padding: 20px; }
+        .auth-card { max-width: 420px; margin: 40px auto; }
+        .hidden { display: none !important; }
+        .pass-group { position: relative; }
+        .eye-icon { position: absolute; right: 15px; top: 12px; cursor: pointer; color: #6c757d; font-size: 1.1rem; z-index: 10; }
+        #loadingOverlay { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 9999; background: rgba(255,255,255,0.8); display:none; align-items:center; justify-content:center; flex-direction:column; }
+        table th { vertical-align: middle; }
     </style>
 </head>
 <body>
 
-    <header class="top-header">
-        <h1 class="header-title">Hệ thống tra cứu văn bản Công đoàn Công ty Lưới điện Cao thế TPHCM</h1>
-        <img src="banner.png" alt="Banner Hoạt động Công đoàn" class="header-banner">
-    </header>
+<header class="top-header">
+    <h1 class="header-title">Tra cứu văn bản Công đoàn - Công ty Lưới điện Cao thế TPHCM</h1>
+    <img src="banner.png" alt="Banner" class="header-banner">
+</header>
 
-    <div class="mobile-fallback">
-        ⚠️ Trình duyệt trên điện thoại có thể chặn hiển thị hệ thống để bảo mật.<br>
-        Nếu bạn không thấy form đăng nhập bên dưới, vui lòng nhấn nút sau:<br>
-        <a href="https://script.google.com/macros/s/AKfycbwXMh7lD4DCqINXLSu31JKP5o4NDp2ij7r-SpiypE7GrQ9po88tTvEblxiDkGOXgd0w/exec" target="_blank" class="btn-direct">
-            🚀 MỞ HỆ THỐNG TRỰC TIẾP
-        </a>
+<div id="loadingOverlay">
+    <div class="spinner-border text-primary"></div>
+    <b class="mt-2 text-primary">Đang kết nối máy chủ...</b>
+</div>
+
+<div class="app-container">
+    <div id="loginBox" class="card shadow border-0 p-4 auth-card">
+        <div class="text-center mb-4"><h4 class="fw-bold text-primary">ĐĂNG NHẬP HỆ THỐNG</h4><small class="text-muted">HEPC v1.3</small></div>
+        <div class="mb-2"><input type="email" id="email" class="form-control" placeholder="Email (Tài khoản)"></div>
+        <div class="mb-2 pass-group"><input type="password" id="pass" class="form-control" placeholder="Mật khẩu"><i class="fa fa-eye eye-icon" onclick="togglePass(this, 'pass')"></i></div>
+        
+        <div id="registerFields" class="hidden">
+            <div class="mb-2 pass-group"><input type="password" id="passConfirm" class="form-control" placeholder="Nhập lại mật khẩu"><i class="fa fa-eye eye-icon" onclick="togglePass(this, 'passConfirm')"></i></div>
+            <hr><input type="text" id="fullName" class="form-control mb-2" placeholder="Họ và tên"><select id="teamSelect" class="form-select mb-3"><option value="">-- Chọn Đơn vị --</option></select>
+        </div>
+        
+        <div id="otpSection" class="hidden text-center">
+            <hr><p class="small text-danger fw-bold">Mã xác thực (OTP) đã gửi vào Email.</p><input type="text" id="otpInput" class="form-control mb-2 text-center fw-bold" placeholder="Nhập mã 6 số"><button onclick="verifyOTP()" class="btn btn-success w-100">Xác nhận đăng ký</button>
+        </div>
+        
+        <div id="authButtons">
+            <button id="btnLogin" onclick="processAuth('login')" class="btn btn-primary w-100 mb-2">Đăng nhập</button>
+            <button id="btnSwitchReg" onclick="toggleReg(true)" class="btn btn-outline-secondary w-100">Đăng ký mới</button>
+            <button id="btnSubmitReg" onclick="processAuth('register')" class="btn btn-success w-100 mb-2 hidden">Xác nhận đăng ký</button>
+            <button id="btnCancelReg" onclick="toggleReg(false)" class="btn btn-link w-100 hidden text-muted text-decoration-none">Hủy</button>
+        </div>
     </div>
 
-    <iframe class="app-iframe" src="https://script.google.com/macros/s/AKfycbwXMh7lD4DCqINXLSu31JKP5o4NDp2ij7r-SpiypE7GrQ9po88tTvEblxiDkGOXgd0w/exec"></iframe>
+    <div id="mainBox" class="hidden container-fluid px-0">
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+            <div><h5 id="displayUser" class="mb-0 fw-bold text-primary">...</h5><small id="displayTeam" class="text-muted"></small></div>
+            <div>
+                <button id="addBtn" class="btn btn-success hidden" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fa fa-plus me-1"></i> Thêm văn bản</button>
+                <button onclick="logout()" class="btn btn-danger ms-2"><i class="fa fa-sign-out-alt"></i> Thoát</button>
+            </div>
+        </div>
+        <div class="card mb-3 border-0 shadow-sm"><div class="input-group"><span class="input-group-text bg-white border-0"><i class="fa fa-search text-muted"></i></span><input type="text" id="searchInput" class="form-control border-0 p-3" placeholder="Tìm số hiệu, trích yếu, người ký hoặc người tải..."></div></div>
+        
+        <div id="tableContent" class="card border-0 shadow-sm hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center text-wrap" style="min-width: 1000px;">
+                    <thead class="table-primary text-uppercase small"><tr><th>Số hiệu</th><th>Ngày</th><th class="text-start">Trích yếu</th><th>Người ký</th><th>VB Chính</th><th>Phụ lục</th><th>Người tải</th></tr></thead>
+                    <tbody id="tableBody" class="bg-white small"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog modal-lg"><form id="docForm" class="modal-content border-0 shadow">
+    <div class="modal-header bg-primary text-white"><h5>Phát hành văn bản</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body p-4"><div class="row g-3">
+        <div class="col-md-6"><label>Số hiệu</label><input type="text" name="soHieu" class="form-control" required></div>
+        <div class="col-md-6"><label>Ngày ký</label><input type="date" name="ngay" class="form-control" required></div>
+        <div class="col-12"><label>Trích yếu</label><textarea name="trichYeu" class="form-control" rows="2" required></textarea></div>
+        <div class="col-md-6"><label>Người ký</label><input type="text" name="nguoiKy" class="form-control" required></div>
+        <div class="col-md-6"><label>Loại</label><select name="trangThai" class="form-select"><option>Bình thường</option><option>Khẩn</option></select></div>
+        <div class="col-12 bg-light p-3 border rounded">
+            <label class="fw-bold text-primary"><i class="fa fa-file-pdf me-1"></i>Văn bản chính (1 tệp)</label><input type="file" id="mainFile" class="form-control mb-3" accept=".pdf,image/*">
+            <label class="fw-bold text-secondary"><i class="fa fa-paperclip me-1"></i>Phụ lục (Nhiều tệp)</label><input type="file" id="multiFiles" class="form-control" multiple>
+        </div>
+    </div></div>
+    <div class="modal-footer"><button type="submit" id="saveBtn" class="btn btn-primary px-4">LƯU HỆ THỐNG</button></div>
+</form></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // --- DÁN LINK GOOGLE APPS SCRIPT WEB APP VÀO ĐÂY ---
+    const API_URL = "DÁN_LINK_VÀO_ĐÂY"; 
+
+    var currentUser = null, serverOTP = null, tempRegData = null;
+
+    // Hàm gọi API chuẩn (Thay thế toàn bộ google.script.run)
+    async function apiCall(action, payloadData = {}) {
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: action, ...payloadData })
+            });
+            return await response.json();
+        } catch (error) {
+            alert("Lỗi kết nối máy chủ! Vui lòng tải lại trang.");
+            document.getElementById('loadingOverlay').style.display = 'none';
+            throw error;
+        }
+    }
+
+    // Tự động load danh sách Team khi mở trang
+    window.onload = async function() {
+        try {
+            const teams = await apiCall('getTeamsList');
+            const select = document.getElementById('teamSelect');
+            teams.forEach(t => { let opt = document.createElement('option'); opt.value = opt.innerHTML = t; select.appendChild(opt); });
+        } catch(e) {}
+    };
+
+    function togglePass(iconElement, inputId) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") { input.type = "text"; iconElement.classList.replace("fa-eye", "fa-eye-slash"); } 
+        else { input.type = "password"; iconElement.classList.replace("fa-eye-slash", "fa-eye"); }
+    }
+
+    function toggleReg(isReg) { 
+        document.getElementById('registerFields').classList.toggle('hidden', !isReg); document.getElementById('btnLogin').classList.toggle('hidden', isReg); document.getElementById('btnSwitchReg').classList.toggle('hidden', isReg); document.getElementById('btnSubmitReg').classList.toggle('hidden', !isReg); document.getElementById('btnCancelReg').classList.toggle('hidden', !isReg); 
+        if(!isReg) { document.getElementById('otpSection').classList.add('hidden'); document.getElementById('authButtons').classList.remove('hidden'); } 
+    }
+
+    async function processAuth(mode) {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('pass').value;
+        if(!email || !password) return alert("Vui lòng điền Email/Pass!");
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        if(mode === 'register') {
+            const passConfirm = document.getElementById('passConfirm').value;
+            if(password !== passConfirm) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Mật khẩu không khớp!"); }
+            if(!document.getElementById('fullName').value || !document.getElementById('teamSelect').value) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Vui lòng điền đủ thông tin!"); }
+            tempRegData = { email, password, fullName: document.getElementById('fullName').value, team: document.getElementById('teamSelect').value };
+            
+            const checkRes = await apiCall('isEmailRegistered', { email });
+            if(checkRes === true) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Email đã được đăng ký!"); }
+            
+            const otpRes = await apiCall('sendOTP', { email });
+            document.getElementById('loadingOverlay').style.display = 'none';
+            if(otpRes.success) { serverOTP = otpRes.otp; document.getElementById('otpSection').classList.remove('hidden'); document.getElementById('authButtons').classList.add('hidden'); } 
+            else alert(otpRes.message);
+        } else {
+            const res = await apiCall('authUser', { data: {email, password} });
+            document.getElementById('loadingOverlay').style.display = 'none';
+            if(res.success) { currentUser = res; startApp(); } else alert(res.message);
+        }
+    }
+
+    async function verifyOTP() { 
+        if(document.getElementById('otpInput').value === serverOTP) { 
+            document.getElementById('loadingOverlay').style.display = 'flex'; 
+            const res = await apiCall('finalizeRegister', { data: tempRegData });
+            document.getElementById('loadingOverlay').style.display = 'none';
+            if(res.success) { alert("Đăng ký thành công!"); toggleReg(false); }
+        } else alert("OTP không đúng!"); 
+    }
+
+    function startApp() { 
+        if(currentUser.status === 'locked') return alert("Tài khoản bị khóa!"); 
+        document.getElementById('loginBox').classList.add('hidden'); document.getElementById('mainBox').classList.remove('hidden'); 
+        document.getElementById('displayUser').innerText = currentUser.fullName; document.getElementById('displayTeam').innerText = currentUser.team + " (" + currentUser.role + ")"; 
+        if(currentUser.role === 'admin' || currentUser.role === 'mod') document.getElementById('addBtn').classList.remove('hidden'); 
+        loadData(); 
+    }
+
+    function logout() { currentUser = null; document.getElementById('mainBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); document.getElementById('pass').value = ''; document.getElementById('email').value = ''; document.getElementById('addBtn').classList.add('hidden'); }
+
+    async function loadData() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        const data = await apiCall('getDataV12');
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = data.map(r => `<tr>
+            <td><b>${r.soHieu}</b></td><td>${r.ngay}</td><td class="text-start">${r.trichYeu}</td><td>${r.nguoiKy}</td>
+            <td>${r.mainLink ? `<a href="${r.mainLink}" target="_blank" class="btn btn-sm btn-outline-danger"><i class="fa fa-file-pdf"></i> Xem</a>` : '---'}</td>
+            <td>${r.extraLinks.length > 0 && r.extraLinks[0] !== "" ? r.extraLinks.map((l, i) => `<a href="${l}" target="_blank" class="badge bg-secondary text-decoration-none d-block mb-1">Tệp ${i+1}</a>`).join('') : '---'}</td>
+            <td class="text-muted text-break">${r.uploader}</td>
+        </tr>`).join('');
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('tableContent').classList.remove('hidden');
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function() { let val = this.value.toLowerCase(); document.querySelectorAll('#tableBody tr').forEach(tr => { tr.style.display = tr.innerText.toLowerCase().includes(val) ? '' : 'none'; }); });
+
+    document.getElementById('docForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "Đang xử lý...";
+        
+        let mainFileData = null; const mainFileObj = document.getElementById('mainFile').files[0];
+        if (mainFileObj) mainFileData = { name: mainFileObj.name, content: await toBase64(mainFileObj) };
+
+        const extraFiles = document.getElementById('multiFiles').files, extraFilesData = [];
+        for (let i = 0; i < extraFiles.length; i++) extraFilesData.push({ name: extraFiles[i].name, content: await toBase64(extraFiles[i]) });
+
+        const data = { soHieu: this.soHieu.value, ngay: this.ngay.value, trichYeu: this.trichYeu.value, nguoiKy: this.nguoiKy.value, trangThai: this.trangThai.value, userEmail: currentUser.email };
+        
+        await apiCall('saveDocumentV12', { data, mainFile: mainFileData, extraFiles: extraFilesData });
+        
+        alert("Lưu thành công!"); loadData(); btn.disabled = false; btn.innerText = "LƯU HỆ THỐNG"; 
+        bootstrap.Modal.getInstance(document.getElementById('addModal')).hide(); document.getElementById('docForm').reset();
+    });
+
+    const toBase64 = file => new Promise((res) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => res(reader.result); });
+</script>
 </body>
 </html>

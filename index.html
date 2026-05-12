@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra cứu Văn bản Công đoàn - HCMPC (HEPC v1.3)</title>
+    <meta name="version" content="HEPC v1.4">
+    <title>Tra cứu Văn bản Công đoàn - HCMPC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --evn-blue: #0054a5; }
-        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
-        /* Header & Banner */
+        body { background: #f0f2f5; font-family: 'Segoe UI', Tahoma, sans-serif; display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
         .top-header { display: flex; align-items: center; justify-content: space-between; background-color: var(--evn-blue); color: white; padding: 10px 25px; box-shadow: 0 3px 6px rgba(0,0,0,0.15); z-index: 10; }
         .header-title { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; margin: 0; line-height: 1.4; }
         .header-banner { height: 65px; width: auto; object-fit: contain; border-radius: 5px; background-color: white; padding: 2px; }
         @media (max-width: 768px) { .top-header { flex-direction: column; text-align: center; padding: 15px; } .header-title { font-size: 1rem; margin-bottom: 10px; } .header-banner { height: 50px; } }
-        /* App Style */
         .app-container { flex-grow: 1; padding: 20px; }
         .auth-card { max-width: 420px; margin: 40px auto; }
         .hidden { display: none !important; }
@@ -27,18 +26,15 @@
 <body>
 
 <header class="top-header">
-    <h1 class="header-title">Tra cứu văn bản Công đoàn - Công ty Lưới điện Cao thế TPHCM</h1>
+    <h1 class="header-title">Hệ thống tra cứu văn bản Công đoàn Công ty Lưới điện Cao thế TPHCM</h1>
     <img src="banner.png" alt="Banner" class="header-banner">
 </header>
 
-<div id="loadingOverlay">
-    <div class="spinner-border text-primary"></div>
-    <b class="mt-2 text-primary">Đang kết nối máy chủ...</b>
-</div>
+<div id="loadingOverlay"><div class="spinner-border text-primary"></div><b class="mt-2 text-primary">Đang kết nối...</b></div>
 
 <div class="app-container">
     <div id="loginBox" class="card shadow border-0 p-4 auth-card">
-        <div class="text-center mb-4"><h4 class="fw-bold text-primary">ĐĂNG NHẬP HỆ THỐNG</h4><small class="text-muted">HEPC v1.3</small></div>
+        <div class="text-center mb-4"><h4 class="fw-bold text-primary">HỆ THỐNG VĂN BẢN</h4><small class="text-muted">HEPC v1.4</small></div>
         <div class="mb-2"><input type="email" id="email" class="form-control" placeholder="Email (Tài khoản)"></div>
         <div class="mb-2 pass-group"><input type="password" id="pass" class="form-control" placeholder="Mật khẩu"><i class="fa fa-eye eye-icon" onclick="togglePass(this, 'pass')"></i></div>
         
@@ -48,7 +44,7 @@
         </div>
         
         <div id="otpSection" class="hidden text-center">
-            <hr><p class="small text-danger fw-bold">Mã xác thực (OTP) đã gửi vào Email.</p><input type="text" id="otpInput" class="form-control mb-2 text-center fw-bold" placeholder="Nhập mã 6 số"><button onclick="verifyOTP()" class="btn btn-success w-100">Xác nhận đăng ký</button>
+            <hr><p class="small text-danger fw-bold">Mã xác thực đã gửi vào Email.</p><input type="text" id="otpInput" class="form-control mb-2 text-center fw-bold" placeholder="Nhập mã 6 số"><button onclick="verifyOTP()" class="btn btn-success w-100">Xác nhận đăng ký</button>
         </div>
         
         <div id="authButtons">
@@ -62,13 +58,9 @@
     <div id="mainBox" class="hidden container-fluid px-0">
         <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
             <div><h5 id="displayUser" class="mb-0 fw-bold text-primary">...</h5><small id="displayTeam" class="text-muted"></small></div>
-            <div>
-                <button id="addBtn" class="btn btn-success hidden" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fa fa-plus me-1"></i> Thêm văn bản</button>
-                <button onclick="logout()" class="btn btn-danger ms-2"><i class="fa fa-sign-out-alt"></i> Thoát</button>
-            </div>
+            <div><button id="addBtn" class="btn btn-success hidden" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fa fa-plus me-1"></i> Thêm văn bản</button><button onclick="logout()" class="btn btn-danger ms-2"><i class="fa fa-sign-out-alt"></i> Thoát</button></div>
         </div>
-        <div class="card mb-3 border-0 shadow-sm"><div class="input-group"><span class="input-group-text bg-white border-0"><i class="fa fa-search text-muted"></i></span><input type="text" id="searchInput" class="form-control border-0 p-3" placeholder="Tìm số hiệu, trích yếu, người ký hoặc người tải..."></div></div>
-        
+        <div class="card mb-3 border-0 shadow-sm"><div class="input-group"><span class="input-group-text bg-white border-0"><i class="fa fa-search text-muted"></i></span><input type="text" id="searchInput" class="form-control border-0 p-3" placeholder="Tìm số hiệu, trích yếu, người ký..."></div></div>
         <div id="tableContent" class="card border-0 shadow-sm hidden">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 text-center text-wrap" style="min-width: 1000px;">
@@ -83,81 +75,52 @@
 <div class="modal fade" id="addModal" tabindex="-1"><div class="modal-dialog modal-lg"><form id="docForm" class="modal-content border-0 shadow">
     <div class="modal-header bg-primary text-white"><h5>Phát hành văn bản</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
     <div class="modal-body p-4"><div class="row g-3">
-        <div class="col-md-6"><label>Số hiệu</label><input type="text" name="soHieu" class="form-control" required></div>
-        <div class="col-md-6"><label>Ngày ký</label><input type="date" name="ngay" class="form-control" required></div>
+        <div class="col-md-6"><label>Số hiệu</label><input type="text" name="soHieu" class="form-control" required></div><div class="col-md-6"><label>Ngày ký</label><input type="date" name="ngay" class="form-control" required></div>
         <div class="col-12"><label>Trích yếu</label><textarea name="trichYeu" class="form-control" rows="2" required></textarea></div>
-        <div class="col-md-6"><label>Người ký</label><input type="text" name="nguoiKy" class="form-control" required></div>
-        <div class="col-md-6"><label>Loại</label><select name="trangThai" class="form-select"><option>Bình thường</option><option>Khẩn</option></select></div>
-        <div class="col-12 bg-light p-3 border rounded">
-            <label class="fw-bold text-primary"><i class="fa fa-file-pdf me-1"></i>Văn bản chính (1 tệp)</label><input type="file" id="mainFile" class="form-control mb-3" accept=".pdf,image/*">
-            <label class="fw-bold text-secondary"><i class="fa fa-paperclip me-1"></i>Phụ lục (Nhiều tệp)</label><input type="file" id="multiFiles" class="form-control" multiple>
-        </div>
+        <div class="col-md-6"><label>Người ký</label><input type="text" name="nguoiKy" class="form-control" required></div><div class="col-md-6"><label>Loại</label><select name="trangThai" class="form-select"><option>Bình thường</option><option>Khẩn</option></select></div>
+        <div class="col-12 bg-light p-3 border rounded"><label class="fw-bold text-primary"><i class="fa fa-file-pdf me-1"></i>Văn bản chính (1 tệp)</label><input type="file" id="mainFile" class="form-control mb-3" accept=".pdf,image/*"><label class="fw-bold text-secondary"><i class="fa fa-paperclip me-1"></i>Phụ lục (Nhiều tệp)</label><input type="file" id="multiFiles" class="form-control" multiple></div>
     </div></div>
     <div class="modal-footer"><button type="submit" id="saveBtn" class="btn btn-primary px-4">LƯU HỆ THỐNG</button></div>
 </form></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- DÁN LINK GOOGLE APPS SCRIPT WEB APP VÀO ĐÂY ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbwXMh7lD4DCqINXLSu31JKP5o4NDp2ij7r-SpiypE7GrQ9po88tTvEblxiDkGOXgd0w/exec"; 
+    // === DÁN LINK GOOGLE APPS SCRIPT WEB APP VÀO ĐÂY ===
+    const API_URL = "DÁN_LINK_VÀO_ĐÂY";
 
-    var currentUser = null, serverOTP = null, tempRegData = null;
+    let currentUser = null, serverOTP = null, tempRegData = null, searchTimeout;
 
-    // Hàm gọi API chuẩn (Thay thế toàn bộ google.script.run)
     async function apiCall(action, payloadData = {}) {
         try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: action, ...payloadData })
-            });
-            return await response.json();
-        } catch (error) {
-            alert("Lỗi kết nối máy chủ! Vui lòng tải lại trang.");
-            document.getElementById('loadingOverlay').style.display = 'none';
-            throw error;
-        }
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: action, ...payloadData }) });
+            return await res.json();
+        } catch (e) { alert("Lỗi kết nối máy chủ API!"); document.getElementById('loadingOverlay').style.display = 'none'; throw e; }
     }
 
-    // Tự động load danh sách Team khi mở trang
-    window.onload = async function() {
-        try {
-            const teams = await apiCall('getTeamsList');
-            const select = document.getElementById('teamSelect');
-            teams.forEach(t => { let opt = document.createElement('option'); opt.value = opt.innerHTML = t; select.appendChild(opt); });
-        } catch(e) {}
+    window.onload = async () => {
+        try { const r = await apiCall('getTeamsList'); if(r.success) r.teams.forEach(t => document.getElementById('teamSelect').add(new Option(t, t))); } catch(e){}
     };
 
-    function togglePass(iconElement, inputId) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") { input.type = "text"; iconElement.classList.replace("fa-eye", "fa-eye-slash"); } 
-        else { input.type = "password"; iconElement.classList.replace("fa-eye-slash", "fa-eye"); }
-    }
-
-    function toggleReg(isReg) { 
-        document.getElementById('registerFields').classList.toggle('hidden', !isReg); document.getElementById('btnLogin').classList.toggle('hidden', isReg); document.getElementById('btnSwitchReg').classList.toggle('hidden', isReg); document.getElementById('btnSubmitReg').classList.toggle('hidden', !isReg); document.getElementById('btnCancelReg').classList.toggle('hidden', !isReg); 
-        if(!isReg) { document.getElementById('otpSection').classList.add('hidden'); document.getElementById('authButtons').classList.remove('hidden'); } 
-    }
+    function togglePass(icon, id) { const el = document.getElementById(id); el.type = el.type === "password" ? "text" : "password"; icon.classList.toggle("fa-eye-slash"); icon.classList.toggle("fa-eye"); }
+    function toggleReg(show) { ['registerFields','btnSubmitReg','btnCancelReg'].forEach(id => document.getElementById(id).classList.toggle('hidden', !show)); ['btnLogin','btnSwitchReg'].forEach(id => document.getElementById(id).classList.toggle('hidden', show)); if(!show) { document.getElementById('otpSection').classList.add('hidden'); document.getElementById('authButtons').classList.remove('hidden'); } }
 
     async function processAuth(mode) {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('pass').value;
+        const email = document.getElementById('email').value, password = document.getElementById('pass').value;
         if(!email || !password) return alert("Vui lòng điền Email/Pass!");
-
         document.getElementById('loadingOverlay').style.display = 'flex';
         
         if(mode === 'register') {
-            const passConfirm = document.getElementById('passConfirm').value;
+            const passConfirm = document.getElementById('passConfirm').value, fullName = document.getElementById('fullName').value, team = document.getElementById('teamSelect').value;
             if(password !== passConfirm) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Mật khẩu không khớp!"); }
-            if(!document.getElementById('fullName').value || !document.getElementById('teamSelect').value) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Vui lòng điền đủ thông tin!"); }
-            tempRegData = { email, password, fullName: document.getElementById('fullName').value, team: document.getElementById('teamSelect').value };
+            if(!fullName || !team) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Điền đủ thông tin!"); }
             
-            const checkRes = await apiCall('isEmailRegistered', { email });
-            if(checkRes === true) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Email đã được đăng ký!"); }
+            tempRegData = { email, password, fullName, team };
+            const check = await apiCall('isEmailRegistered', { email });
+            if(check.isTaken) { document.getElementById('loadingOverlay').style.display = 'none'; return alert("Email đã tồn tại!"); }
             
             const otpRes = await apiCall('sendOTP', { email });
             document.getElementById('loadingOverlay').style.display = 'none';
-            if(otpRes.success) { serverOTP = otpRes.otp; document.getElementById('otpSection').classList.remove('hidden'); document.getElementById('authButtons').classList.add('hidden'); } 
-            else alert(otpRes.message);
+            if(otpRes.success) { serverOTP = otpRes.otp; document.getElementById('otpSection').classList.remove('hidden'); document.getElementById('authButtons').classList.add('hidden'); } else alert(otpRes.message);
         } else {
             const res = await apiCall('authUser', { data: {email, password} });
             document.getElementById('loadingOverlay').style.display = 'none';
@@ -168,57 +131,51 @@
     async function verifyOTP() { 
         if(document.getElementById('otpInput').value === serverOTP) { 
             document.getElementById('loadingOverlay').style.display = 'flex'; 
-            const res = await apiCall('finalizeRegister', { data: tempRegData });
+            const r = await apiCall('finalizeRegister', { data: tempRegData });
             document.getElementById('loadingOverlay').style.display = 'none';
-            if(res.success) { alert("Đăng ký thành công!"); toggleReg(false); }
-        } else alert("OTP không đúng!"); 
+            if(r.success) { alert("Đăng ký thành công!"); toggleReg(false); }
+        } else alert("OTP sai!"); 
     }
 
     function startApp() { 
         if(currentUser.status === 'locked') return alert("Tài khoản bị khóa!"); 
         document.getElementById('loginBox').classList.add('hidden'); document.getElementById('mainBox').classList.remove('hidden'); 
         document.getElementById('displayUser').innerText = currentUser.fullName; document.getElementById('displayTeam').innerText = currentUser.team + " (" + currentUser.role + ")"; 
-        if(currentUser.role === 'admin' || currentUser.role === 'mod') document.getElementById('addBtn').classList.remove('hidden'); 
+        if(['admin','mod'].includes(currentUser.role)) document.getElementById('addBtn').classList.remove('hidden'); 
         loadData(); 
     }
 
-    function logout() { currentUser = null; document.getElementById('mainBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); document.getElementById('pass').value = ''; document.getElementById('email').value = ''; document.getElementById('addBtn').classList.add('hidden'); }
+    function logout() { currentUser = null; document.getElementById('mainBox').classList.add('hidden'); document.getElementById('loginBox').classList.remove('hidden'); document.getElementById('pass').value = ''; }
 
     async function loadData() {
         document.getElementById('loadingOverlay').style.display = 'flex';
-        const data = await apiCall('getDataV12');
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = data.map(r => `<tr>
-            <td><b>${r.soHieu}</b></td><td>${r.ngay}</td><td class="text-start">${r.trichYeu}</td><td>${r.nguoiKy}</td>
-            <td>${r.mainLink ? `<a href="${r.mainLink}" target="_blank" class="btn btn-sm btn-outline-danger"><i class="fa fa-file-pdf"></i> Xem</a>` : '---'}</td>
-            <td>${r.extraLinks.length > 0 && r.extraLinks[0] !== "" ? r.extraLinks.map((l, i) => `<a href="${l}" target="_blank" class="badge bg-secondary text-decoration-none d-block mb-1">Tệp ${i+1}</a>`).join('') : '---'}</td>
-            <td class="text-muted text-break">${r.uploader}</td>
-        </tr>`).join('');
+        const r = await apiCall('getDataV12');
+        if(r.success) {
+            document.getElementById('tableBody').innerHTML = r.data.map(d => `<tr><td><b>${d.soHieu}</b></td><td>${d.ngay}</td><td class="text-start">${d.trichYeu}</td><td>${d.nguoiKy}</td><td>${d.mainLink ? `<a href="${d.mainLink}" target="_blank" class="btn btn-sm btn-outline-danger">Xem</a>` : '---'}</td><td>${d.extraLinks.length > 0 && d.extraLinks[0] !== "" ? d.extraLinks.map((l, i) => `<a href="${l}" target="_blank" class="badge bg-secondary text-decoration-none d-block mb-1">Tệp ${i+1}</a>`).join('') : '---'}</td><td class="text-muted small">${d.uploader}</td></tr>`).join('');
+            document.getElementById('tableContent').classList.remove('hidden');
+        }
         document.getElementById('loadingOverlay').style.display = 'none';
-        document.getElementById('tableContent').classList.remove('hidden');
     }
 
-    document.getElementById('searchInput').addEventListener('input', function() { let val = this.value.toLowerCase(); document.querySelectorAll('#tableBody tr').forEach(tr => { tr.style.display = tr.innerText.toLowerCase().includes(val) ? '' : 'none'; }); });
+    document.getElementById('searchInput').addEventListener('input', function() { 
+        let val = this.value.toLowerCase(); 
+        document.querySelectorAll('#tableBody tr').forEach(tr => tr.style.display = tr.innerText.toLowerCase().includes(val) ? '' : 'none'); 
+        clearTimeout(searchTimeout);
+        if (val.trim().length >= 2) searchTimeout = setTimeout(() => apiCall('logAction', { email: currentUser.email, logType: 'SEARCH', detail: val.trim() }).catch(e=>{}), 2000);
+    });
 
     document.getElementById('docForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('saveBtn'); btn.disabled = true; btn.innerText = "Đang xử lý...";
-        
-        let mainFileData = null; const mainFileObj = document.getElementById('mainFile').files[0];
-        if (mainFileObj) mainFileData = { name: mainFileObj.name, content: await toBase64(mainFileObj) };
-
-        const extraFiles = document.getElementById('multiFiles').files, extraFilesData = [];
-        for (let i = 0; i < extraFiles.length; i++) extraFilesData.push({ name: extraFiles[i].name, content: await toBase64(extraFiles[i]) });
-
+        const mFile = document.getElementById('mainFile').files[0], eFiles = document.getElementById('multiFiles').files;
+        const mData = mFile ? { name: mFile.name, content: await toBase64(mFile) } : null, eData = [];
+        for (let i = 0; i < eFiles.length; i++) eData.push({ name: eFiles[i].name, content: await toBase64(eFiles[i]) });
         const data = { soHieu: this.soHieu.value, ngay: this.ngay.value, trichYeu: this.trichYeu.value, nguoiKy: this.nguoiKy.value, trangThai: this.trangThai.value, userEmail: currentUser.email };
-        
-        await apiCall('saveDocumentV12', { data, mainFile: mainFileData, extraFiles: extraFilesData });
-        
+        await apiCall('saveDocumentV12', { data, mainFile: mData, extraFiles: eData });
         alert("Lưu thành công!"); loadData(); btn.disabled = false; btn.innerText = "LƯU HỆ THỐNG"; 
         bootstrap.Modal.getInstance(document.getElementById('addModal')).hide(); document.getElementById('docForm').reset();
     });
-
-    const toBase64 = file => new Promise((res) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => res(reader.result); });
+    const toBase64 = file => new Promise(res => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); });
 </script>
 </body>
 </html>
